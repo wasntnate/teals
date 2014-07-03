@@ -4,8 +4,11 @@ import java.io.*;
 /**
  * FracCalc - AP Computer Science Project 1
  * 	Requirements create a simple program that reads fractions from the command line and performs basic math actions on them
+ * 
+ * 	Expected input will be in the form: 1_1/3 + 3/2 - 8_9/2 * 4 / 6_1_2
+ * 	There is no concept of order of operations for simplicity
  * 	
- * @author nateb@microsoft.com  
+ * @author nateb [at] microsoft.com  
  * @since 2014-07-03
 */
 public class Program {
@@ -15,9 +18,11 @@ public class Program {
 	 */
 	static Boolean enableTrace =true;
 		
-	
-	public static void main(String[] args) {
-		
+	/**
+	 * This is the entry to the program, all things begin here.
+	 */
+	public static void main(String[] args) 
+	{	
 		//
 		//	Create input reader
 		trace("Creating input reader");
@@ -42,15 +47,20 @@ public class Program {
 		}
 	}
 	
-	
+	/**
+	 * Read one line from an input reader
+	 */
 	static String readLine(BufferedReader reader)
 	{
 		//
 		//	Get the next line of text
 		String line;
-		try {
+		try 
+		{
 			line = reader.readLine();
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 			
 			//
 			//	This is unlikely to happen with keyboard, but can be issue with file
@@ -62,18 +72,38 @@ public class Program {
 		return line;
 	}
 	
+	/**
+	 * Process one line of input and return the computed value
+	 * 	
+	 * For example an input line might read: 
+	 * 			1_2/3 + 4_3/5
+	 * 
+	 * This would become
+	 * 			Token 1: 1_2/3
+	 * 			Token 2: +
+	 * 			Token 3: 4_3/5
+	 * 
+	 *  Tokens are then processed or shifted over for the next action
+	 */
 	static String parseInput(String input)
 	{	
 		String token=null;
 		String lastToken=null;
-		while((token = nextToken(input)) != ""){
+		
+		//
+		//	Read one token at a time until there is nothing left to read
+		while((token = nextToken(input)) != "")
+		{
 			trace(String.format("Next Token: %s", token));
 			
 			//
 			//	Advance the reader by the token length
 			input = input.substring(token.length());
 			
-			switch(token){
+			//
+			//	Remove whitespace and check which operation this is
+			switch(token.trim())
+			{
 				case "+":
 					if(lastToken != null){
 						lastToken = add(lastToken, token);
@@ -99,11 +129,16 @@ public class Program {
 		return lastToken;
 	}
 	
+	/**
+	 * 	Given an input string, get the next token from the series
+	 */
 	static String nextToken(String input)
 	{
 		String token="";			
-		for(int index=0; index<input.length(); index++){
-			switch(input.charAt(index)){
+		for(int index=0; index<input.length(); index++)
+		{
+			switch(input.charAt(index))
+			{
 				case '*':
 				case '/':
 					if(token.length() != 0){
@@ -116,28 +151,39 @@ public class Program {
 						return token;
 					}
 					else{
+						//
+						//	Ignore random + characters such as:
+						//		1 -+2
 						continue;
 					}
 				case '-':
+					//
+					//	Determine if negative is operation 
+					//		or the numeric value is negative
 					if(token.length() != 0){
 						return token;
 					} else{
 						token = "-";
 					}break;
 				default:
+					//
+					//	Append the character and advance forward
 					token += input.charAt(index);
 					break;
 			}
 		}
 		
+		//
+		//	Reached the end of the string, give back the rest
 		return token;		
 	}
 	
-	static void display(String output){
-		System.out.println(output);
-	}
 	
-	static String add(String token1, String token2){
+	/**
+	 * Add two tokens and produce a token containing the resulting value
+	 */	
+	static String add(String token1, String token2)
+	{
 		trace(String.format("Add %s to %s", token1, token2));
 		Integer num_1=0;
 		Integer num_2=0;
@@ -148,8 +194,13 @@ public class Program {
 		return String.format("%d/%d", numerator, denominator);		
 	}
 	
-	static String subtract(String token1, String token2){
-		trace(String.format("Subtract %s to %s", token1, token2));
+	
+	/**
+	 * Subtract two tokens and produce a token containing the resulting value
+	 */	
+	static String subtract(String token1, String token2)
+	{
+		trace(String.format("Subtract %s by %s", token1, token2));
 		Integer num_1=0;
 		Integer num_2=0;
 		Integer denominator=0;		
@@ -158,7 +209,12 @@ public class Program {
 		Integer numerator = num_1 - num_2;
 		return String.format("%d/%d", numerator, denominator);
 	}
-	static String multiply(String token1, String token2){
+	
+	/**
+	 * Multiply two tokens and produce a token containing the resulting value
+	 */	
+	static String multiply(String token1, String token2)
+	{
 		trace(String.format("Multiply %s by %s", token1, token2));
 		Integer num_1=0;
 		Integer num_2=0;
@@ -172,7 +228,11 @@ public class Program {
 		
 		return String.format("%d/%d", numerator, denominator);		
 	}
-	static String divide(String token1, String token2){
+	/**
+	 * Divide two tokens and produce a token containing the resulting value
+	 */	
+	static String divide(String token1, String token2)
+	{
 		trace(String.format("Divide %s by %s", token1, token2));
 		Integer num_1=0;
 		Integer num_2=0;
@@ -186,7 +246,8 @@ public class Program {
 	/**
 	 * Given two tokens, convert them to values of a common denominator
 	 */
-	static void get_gcd(String token1, String token2, Integer num_1, Integer num_2, Integer denominator){
+	static void get_gcd(String token1, String token2, Integer num_1, Integer num_2, Integer denominator)
+	{
 		trace(String.format("GCD of %s and %s", token1, token2));
 		Integer den_1=0;
 		Integer den_2=0;
@@ -195,7 +256,8 @@ public class Program {
 		
 		//
 		//	If they are equal score!
-		if(den_1 == den_2){
+		if(den_1 == den_2)
+		{
 			denominator = den_1;
 			return;
 		}
@@ -212,7 +274,8 @@ public class Program {
 	/**
 	 * Convert a token into a fraction such as "1_1/3" returns numerator=4, denominator =3 
 	 */
-	static void get_fraction(String token, int numerator, int denominator){
+	static void get_fraction(String token, int numerator, int denominator)
+	{
 		trace(String.format("get_fraction of %s", token));		
 		token = token.trim();
 		
@@ -225,7 +288,8 @@ public class Program {
 		//
 		//	Get the whole number amount
 		int wholeNumber =1;
-		if(position_underscore != notfound || position_slash == notfound){
+		if(position_underscore != notfound || position_slash == notfound)
+		{
 			String wholeNumberText = token.substring(0, position_underscore);
 			wholeNumber = Integer.parseInt(wholeNumberText);
 			
@@ -237,7 +301,8 @@ public class Program {
 		//
 		//	Now check if there is a fractional part
 		position_slash = token.indexOf("/");
-		if(position_slash == notfound){
+		if(position_slash == notfound)
+		{
 			numerator = wholeNumber;
 			denominator = 1;
 			return;
@@ -259,10 +324,19 @@ public class Program {
 	 * Print a message to the debug channel, if enabled
 	 * @param message what to send
 	 */
-	static void trace(String message){
+	static void trace(String message)
+	{
 		if(enableTrace){
 			System.err.println("message");
 		}	
+	}
+	
+	/**
+	 *	Write a simple message to the screen (standard output) 
+	 */
+	static void display(String output)
+	{
+		System.out.println(output);
 	}
 	
 	/**
